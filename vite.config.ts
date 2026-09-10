@@ -20,9 +20,15 @@ export default defineConfig({
     },
   },
   server: {
-    // 开发时把 API 代理到本地面板，免去 CORS 与改配置
+    // 开发时把 API 代理到面板，免去 CORS 与改配置。
+    // 面板不在本机或换了端口时用 PULSE_API 覆盖：
+    //   PULSE_API=http://10.0.0.5:25774 npm run dev
     proxy: {
-      '/api': { target: 'http://127.0.0.1:25774', ws: true, changeOrigin: true },
+      '/api': {
+        target: process.env.PULSE_API || 'http://127.0.0.1:25774',
+        ws: true,
+        changeOrigin: true,
+      },
     },
   },
   test: { environment: 'node' },
