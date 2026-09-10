@@ -75,7 +75,7 @@ export function ServerCard({ e, currency }: { e: ServerEntry; currency: string }
         {f.priceKind(b) === 'amount' && b && (
           <Badge>
             {f.money(b.price_display, currency)}
-            {b.cycle !== 'onetime' && ' / 周期'}
+            {b.cycle !== 'onetime' && ` / ${f.cycleName(b.cycle)}`}
             {b.rate_level !== 'fresh' && (
               <sup className="ml-0.5 text-amber-500" title={rateHint(b.rate_level)}>
                 *

@@ -80,6 +80,36 @@ export function priceKind(
   return b.price < 0 ? 'free' : 'amount'
 }
 
+/**
+ * 计费周期的显示名。
+ *
+ * 卡片上原先是写死的 `' / 周期'` —— 不管月付年付都显示「周期」，
+ * 等于把这个字段的信息完全丢掉了。
+ *
+ * 值必须和后端 `domain/billing.rs::Cycle::parse` 对得上；
+ * 后台下拉框用的是同一张表（admin/consts.ts 的 CYCLES 从这里取）。
+ * 认不出来的值原样返回，而不是回退成「周期」——
+ * 后端加了新周期时，界面上会直接显示那个原始值，一眼看得出该来补这里。
+ */
+export function cycleName(cycle: string | null | undefined): string {
+  if (!cycle) return ''
+  return CYCLE_NAMES[cycle] ?? cycle
+}
+
+const CYCLE_NAMES: Record<string, string> = {
+  monthly: '月付',
+  quarterly: '季付',
+  semiannual: '半年付',
+  annual: '年付',
+  biennial: '两年付',
+  triennial: '三年付',
+  onetime: '一次性',
+  custom: '自定义天数',
+}
+
+/** 后台下拉框用的 [值, 显示名] 列表，和上面同一份数据。 */
+export const CYCLE_OPTIONS: [string, string][] = Object.entries(CYCLE_NAMES)
+
 /** 价格的文本形式。卡片要的是两种不同底色的 Badge，用上面的 `priceKind` 自己渲染。 */
 export function price(
   b: { price: number; price_display: number | null } | null | undefined,

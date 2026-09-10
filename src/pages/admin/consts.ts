@@ -1,16 +1,14 @@
+import { CYCLE_OPTIONS } from '../../lib/format'
+
 /** 后台下拉项。**值必须和后端解析器一一对应**，改任何一处都要同步另一处。 */
 
-/** `domain/billing.rs::Cycle::parse` */
-export const CYCLES: [string, string][] = [
-  ['monthly', '月付'],
-  ['quarterly', '季付'],
-  ['semiannual', '半年付'],
-  ['annual', '年付'],
-  ['biennial', '两年付'],
-  ['triennial', '三年付'],
-  ['onetime', '一次性'],
-  ['custom', '自定义天数'],
-]
+/**
+ * `domain/billing.rs::Cycle::parse`
+ *
+ * 从 lib/format 里取，不在这儿再抄一份 —— 卡片上显示周期名要用同一张表，
+ * 两处各写一份的话迟早对不上（「/ 周期」那个 bug 就是因为卡片压根没用这张表）。
+ */
+export const CYCLES = CYCLE_OPTIONS
 
 /** `domain/traffic.rs::CalcMode::parse` —— R5 要求的五种统计方式 */
 export const CALC_MODES: [string, string][] = [
