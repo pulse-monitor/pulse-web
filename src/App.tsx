@@ -91,7 +91,7 @@ function Footer() {
       <p>
         Powered by{' '}
         <a
-          href="https://github.com/"
+          href="https://github.com/pulse-monitor/pulse"
           target="_blank"
           rel="noreferrer noopener"
           className="font-medium text-zinc-600 hover:text-emerald-600 dark:text-zinc-400"
