@@ -19,6 +19,42 @@ interface Task {
   enabled: boolean
 }
 
+/**
+ * 把表单状态拼成提交给服务端的 body。
+ *
+ * 抽成纯函数**只为一件事**：让它可以被直接测到。原先这段内联在组件里，
+ * 于是 `name: e.name.trim`（少一对括号）这种错误没有任何东西挡得住 ——
+ * TypeScript 不报（`.trim` 是合法的属性访问），而 JSON.stringify 会把值为
+ * 函数的字段**整个丢掉**，服务端只回一句 "missing field `name`"，
+ * 从前端完全看不出哪里错了。见 PingTasks.body.test.ts。
+ */
+export function pingTaskBody(e: TaskDraft, scope: Scope) {
+  return {
+    name: e.name.trim(),
+    kind: e.kind,
+    host: e.host.trim(),
+    port: e.kind === 'icmp' ? null : e.port,
+    expect_status: e.kind === 'http' ? e.expect_status : null,
+    interval_s: e.interval_s,
+    packets: e.packets,
+    timeout_ms: e.timeout_ms,
+    ...fromScope(scope),
+    enabled: e.enabled,
+  }
+}
+
+export type TaskDraft = {
+  name: string
+  kind: string
+  host: string
+  port: number | null
+  expect_status: number | null
+  interval_s: number
+  packets: number
+  timeout_ms: number
+  enabled: boolean
+}
+
 const blank = {
   name: '',
   kind: 'icmp',
@@ -44,25 +80,15 @@ export default function PingTasks() {
     editing ? setEditing({ ...editing, ...p } as Task) : setDraft({ ...draft, ...p })
 
   const save = () => {
-    if (!e.name.trim || !e.host.trim) return setErr('名称和地址都不能为空')
-    const body = {
-      name: e.name.trim,
-      kind: e.kind,
-      host: e.host.trim,
-      port: e.kind === 'icmp' ? null : e.port,
-      expect_status: e.kind === 'http' ? e.expect_status : null,
-      interval_s: e.interval_s,
-      packets: e.packets,
-      timeout_ms: e.timeout_ms,
-      ...fromScope(scope),
-      enabled: e.enabled,
-    }
+    // 括号不能少 —— 见 pingTaskBody 的注释
+    if (!e.name.trim() || !e.host.trim()) return setErr('名称和地址都不能为空')
+    const body = pingTaskBody(e, scope)
     run(() =>
         editing ? put(`/api/v1/admin/ping-tasks/${editing.id}`, body) : post('/api/v1/admin/ping-tasks', body), () => {
         setEditing(null)
         setDraft(blank)
         setScope({ kind: '', ids: [] })
-        reload
+        reload()
       },
       (m) => setErr(m || null),
     )
