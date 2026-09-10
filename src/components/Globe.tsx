@@ -280,10 +280,15 @@ export function Globe({
 }
 
 /**
- * 地球旁边的图例：在线 / 离线台数 + 每个国家的国旗和数量。
+ * 地球旁边的图例：在线 / 离线台数。
  *
  * 和地球本体分开导出，因为地球是压在卡片**底下**的装饰层，
  * 图例得浮在上面才点得到、看得清。
+ *
+ * 这里**不再逐个国家列国旗**。国家数一多那排芯片就会横着铺开、
+ * 把球压下去，而它回答的问题（哪些国家有几台）本来就已经有两个更好的
+ * 去处：球上对应国家会点亮、鼠标悬停有该国的明细，下面的分组 tab
+ * 也能按地区筛。同一件事讲三遍，最占地方的那一遍先去掉。
  */
 export function GlobeLegend({
   servers,
@@ -294,16 +299,6 @@ export function GlobeLegend({
 }) {
   const online = servers.filter((e) => e.server.online).length
   const offline = servers.length - online
-  const byCountry = new Map<string, CountryStat>()
-  for (const e of servers) {
-    const c = e.server.country_code?.toUpperCase()
-    if (!c) continue
-    const cur = byCountry.get(c) ?? { total: 0, online: 0 }
-    cur.total++
-    if (e.server.online) cur.online++
-    byCountry.set(c, cur)
-  }
-  const legend = [...byCountry.entries()].sort((a, b) => b[1].total - a[1].total)
   if (servers.length === 0) return null
 
   return (
@@ -320,18 +315,6 @@ export function GlobeLegend({
           </span>
         )}
       </span>
-      {legend.map(([code, n]) => (
-        <span
-          key={code}
-          className="flex items-center gap-1 rounded-full bg-white/70 px-2 py-1 shadow-sm backdrop-blur dark:bg-white/10"
-        >
-          <Flag code={code} />
-          <span className="tabular-nums">
-            <span className="text-emerald-600 dark:text-emerald-400">{n.online}</span>
-            <span className="text-zinc-400">/{n.total}</span>
-          </span>
-        </span>
-      ))}
     </div>
   )
 }

@@ -215,10 +215,11 @@ export default function Home() {
           {expiring && <Expiring items={expiring.items} currency={expiring.currency} />}
         </div>
 
-        {/* 图例浮在球上面。窄屏时跟在统计下面，宽屏时贴到右上 */}
+        {/* 图例浮在球上面。窄屏时跟在统计下面，宽屏时贴到右上。
+            现在只剩一个在线/离线计数，不必再为一排国旗留 34% 的宽度 */}
         <GlobeLegend
           servers={entries}
-          className="mt-3 justify-center lg:absolute lg:right-1 lg:top-0 lg:mt-0 lg:max-w-[34%] lg:justify-end"
+          className="mt-3 justify-center lg:absolute lg:right-1 lg:top-0 lg:mt-0 lg:justify-end"
         />
       </div>
 
