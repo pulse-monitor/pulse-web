@@ -197,7 +197,7 @@ export function ServerCard({ e, currency }: { e: ServerEntry; currency: string }
                 <IconLoss className="h-3.5 w-3.5 translate-y-px text-amber-500" />
                 丢包
               </span>
-              <span className="tabular-nums">{s.latency.loss_pct.toFixed(0)}%</span>
+              <span className="tabular-nums">{f.loss(s.latency.loss_pct)}%</span>
             </span>
             <Spark values={s.loss_spark ?? []} tone="amber" />
           </Cell>

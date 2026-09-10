@@ -131,6 +131,18 @@ export function pct(v: number | null | undefined, digits = 1): string {
   return `${v.toFixed(digits)}%`
 }
 
+/**
+ * 丢包率（不带 %）。`toFixed(0)` 会把 0.3% 这种偶发丢包抹成「0」——
+ * 详情页看得到丢包、卡片却一直是 0，就有这一份。
+ * 10% 以下留一位小数；有丢包但不到 0.1% 时显示「<0.1」，不能显示成 0。
+ */
+export function loss(v: number | null | undefined): string {
+  if (v === null || v === undefined || !Number.isFinite(v)) return '—'
+  if (v <= 0) return '0'
+  if (v < 0.1) return '<0.1'
+  return v < 10 ? v.toFixed(1) : v.toFixed(0)
+}
+
 /** 金额。`null` 表示该货币没有汇率 —— 显示 — 而不是 0。 */
 export function money(v: number | null | undefined, currency: string): string {
   if (v === null || v === undefined || !Number.isFinite(v)) return '—'

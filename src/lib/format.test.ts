@@ -17,6 +17,25 @@ describe('bytes', () => {
   })
 })
 
+describe('loss', () => {
+  it('never rounds real loss down to 0', () => {
+    // 卡片上曾经用 toFixed(0)：0.3% 显示成「0%」，和详情页对不上
+    expect(f.loss(0.3)).toBe('0.3')
+    expect(f.loss(0.05)).toBe('<0.1')
+    expect(f.loss(3.333)).toBe('3.3')
+  })
+  it('keeps whole numbers for large values and exact zero', () => {
+    expect(f.loss(0)).toBe('0')
+    expect(f.loss(33.33)).toBe('33')
+    expect(f.loss(100)).toBe('100')
+  })
+  it('shows — for unknown', () => {
+    for (const v of [null, undefined, NaN]) {
+      expect(f.loss(v as number)).toBe('—')
+    }
+  })
+})
+
 describe('limit', () => {
   it('shows ♾️ when no limit is configured (R16)', () => {
     expect(f.limit(null)).toBe('♾️')
