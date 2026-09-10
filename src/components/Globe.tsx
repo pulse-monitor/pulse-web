@@ -145,7 +145,13 @@ export function Globe({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [geo, lambda, phi, byCountry])
 
-  if (legend.length === 0) return null
+  // 一台都认不出国家时**照样把球画出来**，只是没有点亮的区域。
+  //
+  // 原先这里 return null，于是首页右边直接空掉一大块 —— 看起来像坏了。
+  // 认不出国家是很正常的情况：Agent 走内网/回环连过来、GeoIP 库还没下好、
+  // 或者机器刚加还没上报 IP。这些时候「一个没点亮的地球」比「什么都没有」诚实。
+  //
+  // 真正一台机器都没有时，上层 Home 不会渲染这块，不用在这里判。
 
   const hoverStat = hover ? byCountry.get(hover) : null
 
