@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  workflows:
+    name: Workflow 静态检查
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: raven-actions/actionlint@v2
+
+  build:
+    name: 类型 / 单测 / 构建 / 首屏预算
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npx vitest run
+      # prebuild 生成国旗/地图/图标，postbuild 核对产物完整性
+      - run: npm run build
+      # 首屏预算是硬约束，超了就 fail
+      - name: 检查首屏体积 ≤ 180 KB gzip
+        run: |
+          set -Eeuo pipefail
+          total=0
+          for f in dist/assets/index-*.js dist/assets/index-*.css; do
+            [ -e "$f" ] || continue
+            sz=$(gzip -c "$f" | wc -c)
+            echo "  $(basename "$f")  $((sz / 1024)) KB gzip"
+            total=$((total + sz))
+          done
+          echo "首屏合计 $((total / 1024)) KB gzip（预算 180 KB）"
+          [ "$total" -le $((180 * 1024)) ] || { echo "❌ 超出首屏预算"; exit 1; }

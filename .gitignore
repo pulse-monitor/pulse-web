@@ -1,0 +1,13 @@
+node_modules/
+dist/
+tsconfig.tsbuildinfo
+
+# prebuild 生成，不入库：国旗、地图多边形、系统图标
+public/flags/
+public/os/
+public/world-geo.json
+
+.DS_Store
+._*
+# iCloud 在 ~/Desktop 下会造 "xx 2.svg" 这种冲突副本
+* [0-9].*

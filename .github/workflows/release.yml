@@ -1,0 +1,39 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    name: 构建并发布 dist
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+
+      - name: 打包
+        run: |
+          set -Eeuo pipefail
+          tar -czf pulse-web-dist.tar.gz dist
+          # 面板的安装脚本会核对这个摘要 —— 没有它就没法确认下到的是完整的包
+          sha256sum pulse-web-dist.tar.gz > SHA256SUMS
+          cat SHA256SUMS
+
+      - name: 发布
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            pulse-web-dist.tar.gz
+            SHA256SUMS
+          generate_release_notes: true
+          fail_on_unmatched_files: true
